@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Minesweeper</title>
-    <script src="/home/agurato/bin/processing-3.3.5/modes/java/reference/javascript/p5.min.js"></script>
+    <script src="../../modes/p5jsMode/template/libraries/p5.js"></script>
     <script src="sketch.js"></script>
     <script src="cell.js"></script>
 </head>
