@@ -1,13 +1,14 @@
 document.addEventListener('contextmenu', event => event.preventDefault());
 
 var cols = 10;
-var rows = 10;
+var rows = 20;
 var w = 30;
 var bomb_nb;
 var grid;
 var game_over = false;
 var nb_discovered = 0;
 var nb_questions = 0;
+var init = false;
 
 function setup() {
     createCanvas(cols*w+200, rows*w+1);
@@ -20,13 +21,7 @@ function setup() {
     }
 
     bomb_nb = floor(cols*rows/6);
-    plant_bombs();
-
-    for(var i=0 ; i<cols ; i++) {
-        for(var j=0 ; j<rows ; j++) {
-            grid[i][j].count_bombs();
-        }
-    }
+    // noLoop()
 }
 
 function draw() {
@@ -64,12 +59,7 @@ function draw() {
     if(game_over) {
         noLoop();
 
-        for(var i = 0 ; i<cols ; i++) {
-            for(var j=0 ; j<rows ; j++) {
-                grid[i][j].discovered = true;
-                grid[i][j].display();
-            }
-        }
+        show_all();
 
         stroke(200);
         fill(200);
@@ -87,34 +77,57 @@ function draw() {
 }
 
 function mousePressed() {
-    i = floor(mouseX/w);
-    j = floor(mouseY/w);
-    if(i>=0 && i<cols && j>=0 && j<rows) {
+    mouse_i = floor(mouseX/w);
+    mouse_j = floor(mouseY/w);
+    if(mouse_i>=0 && mouse_i<cols && mouse_j>=0 && mouse_j<rows) {
         // console.log(i+";"+j);
         if (mouseButton == LEFT) {
-            grid[i][j].discover();
+            if(! init) {
+                // console.log("INIT : "+mouse_i+";"+mouse_j);
+                plant_bombs(mouse_i, mouse_j);
+
+                for(var i=0 ; i<cols ; i++) {
+                    for(var j=0 ; j<rows ; j++) {
+                        grid[i][j].count_bombs();
+                    }
+                }
+                init = true;
+                // loop();
+            }
+
+            // show_all();
+            grid[mouse_i][mouse_j].discover();
         }
         else if (mouseButton == RIGHT) {
-            if(grid[i][j].question) {
-                grid[i][j].question = false;
+            if(grid[mouse_i][mouse_j].question) {
+                grid[mouse_i][mouse_j].question = false;
                 nb_questions --;
             }
             else {
-                grid[i][j].question = true;
+                grid[mouse_i][mouse_j].question = true;
                 nb_questions ++;
             }
         }
     }
 }
 
-function plant_bombs() {
+function plant_bombs(i, j) {
+    // grid[i][j].value should be = 0
     var bomb_i, bomb_j;
-    for(var i=0 ; i<bomb_nb ; i++) {
+    for(var n=0 ; n<bomb_nb ; n++) {
         do {
             bomb_i = floor(random(0, cols));
             bomb_j = floor(random(0, rows));
-        } while(grid[bomb_i][bomb_j].value == 9);
+        } while(grid[bomb_i][bomb_j].value == 9 || (bomb_i>=i-1 && bomb_i<=i+1 && bomb_j>=j-1 && bomb_j<=j+1));
         grid[bomb_i][bomb_j].value = 9;
-        // console.log(grid[bomb_i][bomb_j]);
+    }
+}
+
+function show_all() {
+    for(var i = 0 ; i<cols ; i++) {
+        for(var j=0 ; j<rows ; j++) {
+            grid[i][j].discovered = true;
+            grid[i][j].display();
+        }
     }
 }
